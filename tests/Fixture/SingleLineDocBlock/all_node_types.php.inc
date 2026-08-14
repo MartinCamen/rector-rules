@@ -1,6 +1,6 @@
 <?php
 
-namespace MartinCamen\RectorRules\Tests\Unit\Rector\Fixture;
+namespace MartinCamen\RectorRules\Tests\Fixture\SingleLineDocBlock;
 
 /**
  * @mixin \Illuminate\Database\Eloquent\Builder
@@ -62,7 +62,7 @@ function allNodeTypes(): void
 -----
 <?php
 
-namespace Tests\Unit\Rector\Fixture;
+namespace MartinCamen\RectorRules\Tests\Fixture\SingleLineDocBlock;
 
 /** @mixin \Illuminate\Database\Eloquent\Builder */
 class AllNodeTypes

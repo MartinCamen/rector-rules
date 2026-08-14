@@ -1,6 +1,6 @@
 <?php
 
-namespace MartinCamen\RectorRules\Tests\Unit\Rector\FixtureWithDescriptions;
+namespace MartinCamen\RectorRules\Tests\Fixture\SingleLineDocBlockWithDescriptions;
 
 class SkipMultipleLines
 {

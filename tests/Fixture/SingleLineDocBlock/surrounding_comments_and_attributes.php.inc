@@ -1,6 +1,6 @@
 <?php
 
-namespace MartinCamen\RectorRules\Tests\Unit\Rector\Fixture;
+namespace MartinCamen\RectorRules\Tests\Fixture\SingleLineDocBlock;
 
 class SurroundingCommentsAndAttributes
 {
@@ -18,7 +18,7 @@ class SurroundingCommentsAndAttributes
 -----
 <?php
 
-namespace Tests\Unit\Rector\Fixture;
+namespace MartinCamen\RectorRules\Tests\Fixture\SingleLineDocBlock;
 
 class SurroundingCommentsAndAttributes
 {
