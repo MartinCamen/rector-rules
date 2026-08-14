@@ -5,206 +5,138 @@
 >
 > The aim is to follow semantic versioning as soon as possible.
 
-A canonical domain model for the *arr ecosystem.
+A small set of [Rector](https://getrector.com) rules for keeping doc blocks tidy.
 
-`php-arr-core` provides **shared domain models, value objects, enums and normalization logic**
-used across *arr service SDKs such as Sonarr, Radarr, Jellyseerr and NZBGet.
+Both rules rewrite the **raw text** of a doc block rather than its parsed representation, because Rector prints doc
+blocks while preserving their original line breaks. A rule that has to change the layout has to work on the text.
 
-The goal is to eliminate duplicated DTOs, inconsistent status handling and ad-hoc mappings
-between services that conceptually model the same things.
+## Installation
 
-## Ecosystem
-
-| Package                                                                 | Description                        |
-|-------------------------------------------------------------------------|------------------------------------|
-| [radarr-php](https://github.com/martincamen/radarr-php)                 | PHP SDK for Radarr                 |
-| [sonarr-php](https://github.com/martincamen/sonarr-php)                 | PHP SDK for Sonarr                 |
-| [jellyseerr-php](https://github.com/martincamen/jellyseerr-php)         | PHP SDK for Jellyseerr             |
-| [laravel-radarr](https://github.com/martincamen/laravel-radarr)         | Laravel integration for Radarr     |
-| [laravel-sonarr](https://github.com/martincamen/laravel-sonarr)         | Laravel integration for Sonarr     |
-| [laravel-jellyseerr](https://github.com/martincamen/laravel-jellyseerr) | Laravel integration for Jellyseerr |
-
----
-
-## Why does this exist?
-
-The *arr ecosystem is highly cohesive:
-
-- Sonarr, Radarr, Jellyseerr and NZBGet all model:
-    - media (movies, series, episodes)
-    - downloads (queue items)
-    - file sizes
-    - progress
-    - statuses
-- Yet each service exposes these concepts using:
-    - different naming
-    - different units
-    - different status values
-    - different lifecycle semantics
-
-This results in:
-- duplicated DTOs
-- repeated status mapping logic
-- fragile integrations
-- inconsistent developer experience
-
-`php-arr-core` solves this by defining **one canonical domain model**
-that all *arr SDKs map to.
-
----
-
-## What this package is
-
-- ✅ Pure PHP (no framework dependencies)
-- ✅ Canonical domain models
-- ✅ Value objects (FileSize, Duration, Progress, etc.)
-- ✅ Normalized enums and statuses
-- ✅ Mapping helpers and contracts
-
----
-
-## Core design principles
-
-### 1. Canonical domain > API representation
-
-APIs change. Domains evolve slowly.
-
-This package models **what things are**, not how services expose them.
-
----
-
-### 2. Value objects over primitives
-
-Anything that:
-- has units
-- appears in multiple services
-- requires conversion or logic
-
-...is modeled as a value object.
-
-Examples:
-- `ArrFileSize` (extends `martincamen/php-file-size`)
-- `Duration`
-- `Progress`
-
----
-
-### 3. Status normalization is centralized
-
-Each service uses its own status vocabulary.
-
-All normalization happens **once**, in core.
-
-SDKs should never contain `switch` or `if` blocks for statuses.
-
----
-
-### 4. Mapping happens at the boundary
-
-Service SDKs are responsible for mapping their API DTOs
-into `php-arr-core` domain objects.
-
-Core never depends on service-specific code.
-
----
-
-## Package structure
-
-```text
-src/
-├── Domain/
-│   ├── Media/
-│   ├── Download/
-│   ├── Request/
-│   └── User/
-├── ValueObject/
-│   ├── ArrFileSize.php
-│   ├── Duration.php
-│   ├── Progress.php
-│   └── ArrId.php
-├── Enum/
-│   ├── MediaStatus.php
-│   ├── DownloadStatus.php
-│   └── Service.php
-├── Mapping/
-│   ├── StatusNormalizer.php
-│   └── ServiceCapabilities.php
+```bash
+composer require --dev martincamen/rector.rules
 ```
 
----
+## Rules
 
-## Example usage
+### SingleLineDocBlockRector
+
+Collapses a doc block holding a single line of content onto one line.
 
 ```php
-use MartinCamen\ArrCore\Domain\Download\DownloadItem;
-use MartinCamen\ArrCore\ValueObject\ArrFileSize;
-use MartinCamen\ArrCore\ValueObject\Progress;
-use MartinCamen\ArrCore\Enum\DownloadStatus;
+// Before
+/**
+ * @throws Throwable
+ */
+public function handle(): void
 
-$item = new DownloadItem(
-    id: ArrId::fromInt(123),
-    name: 'Example.Movie.2024',
-    size: ArrFileSize::fromGigabytes(8.5),
-    progress: Progress::fromPercentage(42),
-    status: DownloadStatus::Downloading
-);
+// After
+/** @throws Throwable */
+public function handle(): void
 ```
 
----
-## How service SDKs integrate
-
-Each service SDK:
-
-1. Defines API-specific DTOs
-2. Fetches raw data via HTTP
-3. Maps DTOs → `php-arr-core` domain models
-
-Example:
+Register it:
 
 ```php
-use MartinCamen\Sonarr\Sonarr;
+use MartinCamen\RectorRules\SingleLineDocBlockRector;
+use Rector\Config\RectorConfig;
 
-$sonarr = Sonarr::create('localhost', 8989, 'your-api-key');
-
-// Action-based API returns typed responses
-$downloads = $sonarr->downloads()->all();   // DownloadPage
-$series = $sonarr->series()->all();          // SeriesCollection
-$status = $sonarr->system()->status();       // SystemStatus
+return RectorConfig::configure()
+    ->withRules([SingleLineDocBlockRector::class]);
 ```
 
----
-## Supported services
+#### Options
 
-This package is designed to be used by:
-- Sonarr SDK
-- Radarr SDK
-- Jellyseerr SDK
-- NZBGet SDK
-- Prowlarr SDK (planned)
+| Option                  | Type   | Default | Description                                                              |
+|-------------------------|--------|---------|--------------------------------------------------------------------------|
+| `collapse_descriptions` | `bool` | `false` | Also collapse doc blocks holding a plain description instead of an annotation. |
+| `max_line_length`       | `int`  | `120`   | Leave a doc block alone when collapsing it would make the line longer than this. Use `0` for no limit. |
 
----
-## Versioning & stability
+```php
+->withConfiguredRule(SingleLineDocBlockRector::class, [
+    SingleLineDocBlockRector::COLLAPSE_DESCRIPTIONS => true,
+    SingleLineDocBlockRector::MAX_LINE_LENGTH       => 100,
+]);
+```
 
-`php-arr-core` follows semantic versioning.
+Passing an unknown option, or one of the wrong type, throws a `Rector\Exception\Configuration\InvalidConfigurationException`.
 
-Breaking changes only occur when:
-- a domain concept changes
-- a value object's behavior changes
+#### Behaviour
 
-New services and fields should be additive whenever possible.
+- Applies to classes, interfaces, traits, enums, enum cases, class constants, properties, methods and functions.
+- Blank lines inside the doc block are ignored when counting content, so a padded single-line block still collapses.
+- Doc blocks with two or more lines of content are left alone.
+- Plain descriptions are left alone unless `collapse_descriptions` is enabled.
+- The line length check accounts for the indentation of the code being documented.
+- Surrounding comments and attributes are preserved.
 
----
+### MergeThrowsTagsRector
 
-## Contributing
+Merges the `@throws` tags of a doc block into a single alphabetically sorted union tag.
 
-Contributions are welcome, especially:
-- new value objects
-- improved normalization
-- additional service mappings
+```php
+// Before
+/**
+ * @throws SecondException
+ * @throws FirstException
+ */
+public function handle(): void
 
+// After
+/**
+ * @throws FirstException|SecondException
+ */
+public function handle(): void
+```
 
-Before adding new models, consider:
+Register it:
 
-> Is this a domain concept or an API detail?
+```php
+use MartinCamen\RectorRules\MergeThrowsTagsRector;
+use Rector\Config\RectorConfig;
 
-If unsure, open an issue.
+return RectorConfig::configure()
+    ->withRules([MergeThrowsTagsRector::class]);
+```
+
+#### Behaviour
+
+- Duplicate types are dropped, and an existing union is sorted even when there is nothing to merge with.
+- Sorting happens on the **short** class name, which keeps the order stable once Rector imports the names — it does
+  that after this rule has run. So `\Zebra\FirstException|\Apple\SecondException` stays in that order.
+- A tag carrying more than a type (`@throws FirstException when the order is already paid`) is left alone, along with
+  every other tag in that doc block.
+- Tags are only merged when written as one uninterrupted block. Tags separated by a blank line or by another tag are
+  left alone, because merging them would leave the lines in between stranded.
+
+This rule does not collapse the doc block onto one line. Register both rules to get that in a single pass — the merged
+tag is the only line of content left, so `SingleLineDocBlockRector` collapses it:
+
+```php
+->withRules([MergeThrowsTagsRector::class, SingleLineDocBlockRector::class]);
+```
+
+```php
+// Before
+/**
+ * @throws SecondException
+ * @throws FirstException
+ */
+
+// After
+/** @throws FirstException|SecondException */
+```
+
+## Development
+
+```bash
+composer check      # phpstan, phpunit, pint and rector
+composer test       # phpunit only
+composer pint-fix   # apply code style fixes
+```
+
+The rules are covered by [Rector's fixture tests](https://getrector.com/documentation/testing-rules). Each rule has a
+directory under `tests/Fixture` and a config under `tests/config`, wired together by a test class in `tests/Rector`.
+
+## License
+
+MIT
