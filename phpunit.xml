@@ -12,6 +12,9 @@
         <testsuite name="Rector">
             <directory>tests/Rector</directory>
         </testsuite>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
