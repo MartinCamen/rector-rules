@@ -1,6 +1,6 @@
 <?php
 
-namespace MartinCamen\RectorRules\Tests\Unit\Rector\FixtureMergeThrows;
+namespace MartinCamen\RectorRules\Tests\Fixture\MergeThrowsTags;
 
 class ExistingUnions
 {
@@ -25,7 +25,7 @@ class ExistingUnions
 -----
 <?php
 
-namespace Tests\Unit\Rector\FixtureMergeThrows;
+namespace MartinCamen\RectorRules\Tests\Fixture\MergeThrowsTags;
 
 class ExistingUnions
 {

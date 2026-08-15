@@ -9,6 +9,9 @@
          failOnRisky="true"
          failOnWarning="true">
     <testsuites>
+        <testsuite name="Rector">
+            <directory>tests/Rector</directory>
+        </testsuite>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>

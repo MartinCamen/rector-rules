@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace MartinCamen\RectorRules;
 
 use Rector\Contract\Rector\ConfigurableRectorInterface;
+use Rector\Exception\Configuration\InvalidConfigurationException;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use Webmozart\Assert\Assert;
 
 /**
  * Collapses a doc block that holds a single line of content onto one line.
@@ -24,8 +24,11 @@ final class SingleLineDocBlockRector extends AbstractDocBlockRector implements C
      */
     public const string MAX_LINE_LENGTH = 'max_line_length';
 
-    private bool $collapseDescriptions = false;
-    private int $maxLineLength = 120;
+    private const bool DEFAULT_COLLAPSE_DESCRIPTIONS = false;
+    private const int DEFAULT_MAX_LINE_LENGTH = 120;
+
+    private bool $collapseDescriptions = self::DEFAULT_COLLAPSE_DESCRIPTIONS;
+    private int $maxLineLength = self::DEFAULT_MAX_LINE_LENGTH;
 
     public function getRuleDefinition(): RuleDefinition
     {
@@ -54,25 +57,81 @@ final class SingleLineDocBlockRector extends AbstractDocBlockRector implements C
                         }
                         CODE_SAMPLE,
                     [
-                        self::COLLAPSE_DESCRIPTIONS => false,
-                        self::MAX_LINE_LENGTH       => 120,
+                        self::COLLAPSE_DESCRIPTIONS => self::DEFAULT_COLLAPSE_DESCRIPTIONS,
+                        self::MAX_LINE_LENGTH       => self::DEFAULT_MAX_LINE_LENGTH,
                     ],
                 ),
             ],
         );
     }
 
-    /** @param array<string, bool|int> $configuration */
+    /** @param array<string, mixed> $configuration */
     public function configure(array $configuration): void
     {
-        $collapseDescriptions = $configuration[self::COLLAPSE_DESCRIPTIONS] ?? false;
-        Assert::boolean($collapseDescriptions);
+        $this->guardAgainstUnknownOptions($configuration);
 
-        $maxLineLength = $configuration[self::MAX_LINE_LENGTH] ?? 120;
-        Assert::natural($maxLineLength);
+        $this->collapseDescriptions = $this->resolveCollapseDescriptions($configuration);
+        $this->maxLineLength = $this->resolveMaxLineLength($configuration);
+    }
 
-        $this->collapseDescriptions = $collapseDescriptions;
-        $this->maxLineLength = $maxLineLength;
+    /** @param array<string, mixed> $configuration */
+    private function guardAgainstUnknownOptions(array $configuration): void
+    {
+        $unknownOptions = array_diff(
+            array_keys($configuration),
+            [self::COLLAPSE_DESCRIPTIONS, self::MAX_LINE_LENGTH],
+        );
+
+        if ($unknownOptions === []) {
+            return;
+        }
+
+        throw new InvalidConfigurationException(sprintf(
+            'Unknown option(s) "%s" given to %s. Expected any of "%s".',
+            implode('", "', $unknownOptions),
+            self::class,
+            implode('", "', [self::COLLAPSE_DESCRIPTIONS, self::MAX_LINE_LENGTH]),
+        ));
+    }
+
+    /** @param array<string, mixed> $configuration */
+    private function resolveCollapseDescriptions(array $configuration): bool
+    {
+        $collapseDescriptions = $configuration[self::COLLAPSE_DESCRIPTIONS] ?? self::DEFAULT_COLLAPSE_DESCRIPTIONS;
+
+        if (! is_bool($collapseDescriptions)) {
+            throw new InvalidConfigurationException(sprintf(
+                'Option "%s" expects a bool, %s given.',
+                self::COLLAPSE_DESCRIPTIONS,
+                get_debug_type($collapseDescriptions),
+            ));
+        }
+
+        return $collapseDescriptions;
+    }
+
+    /** @param array<string, mixed> $configuration */
+    private function resolveMaxLineLength(array $configuration): int
+    {
+        $maxLineLength = $configuration[self::MAX_LINE_LENGTH] ?? self::DEFAULT_MAX_LINE_LENGTH;
+
+        if (! is_int($maxLineLength)) {
+            throw new InvalidConfigurationException(sprintf(
+                'Option "%s" expects an int, %s given.',
+                self::MAX_LINE_LENGTH,
+                get_debug_type($maxLineLength),
+            ));
+        }
+
+        if ($maxLineLength < 0) {
+            throw new InvalidConfigurationException(sprintf(
+                'Option "%s" expects a non-negative int, %d given.',
+                self::MAX_LINE_LENGTH,
+                $maxLineLength,
+            ));
+        }
+
+        return $maxLineLength;
     }
 
     protected function refactorDocBlock(string $docBlock): ?string

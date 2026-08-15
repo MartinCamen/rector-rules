@@ -1,6 +1,6 @@
 <?php
 
-namespace MartinCamen\RectorRules\Tests\Unit\Rector\Fixture;
+namespace MartinCamen\RectorRules\Tests\Fixture\SingleLineDocBlock;
 
 class MaxLineLength
 {
@@ -23,7 +23,7 @@ class MaxLineLength
 -----
 <?php
 
-namespace Tests\Unit\Rector\Fixture;
+namespace MartinCamen\RectorRules\Tests\Fixture\SingleLineDocBlock;
 
 class MaxLineLength
 {

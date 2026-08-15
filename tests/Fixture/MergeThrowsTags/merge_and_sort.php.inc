@@ -1,6 +1,6 @@
 <?php
 
-namespace MartinCamen\RectorRules\Tests\Unit\Rector\FixtureMergeThrows;
+namespace MartinCamen\RectorRules\Tests\Fixture\MergeThrowsTags;
 
 class MergeAndSort
 {
@@ -29,7 +29,7 @@ class MergeAndSort
 -----
 <?php
 
-namespace Tests\Unit\Rector\FixtureMergeThrows;
+namespace MartinCamen\RectorRules\Tests\Fixture\MergeThrowsTags;
 
 class MergeAndSort
 {

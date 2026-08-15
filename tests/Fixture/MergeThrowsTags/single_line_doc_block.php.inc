@@ -1,6 +1,6 @@
 <?php
 
-namespace MartinCamen\RectorRules\Tests\Unit\Rector\FixtureMergeThrows;
+namespace MartinCamen\RectorRules\Tests\Fixture\MergeThrowsTags;
 
 class SingleLineDocBlock
 {
@@ -24,7 +24,7 @@ class SingleLineDocBlock
 -----
 <?php
 
-namespace Tests\Unit\Rector\FixtureMergeThrows;
+namespace MartinCamen\RectorRules\Tests\Fixture\MergeThrowsTags;
 
 class SingleLineDocBlock
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace MartinCamen\RectorRules\Tests\Unit\Rector\FixtureWithDescriptions;
+namespace MartinCamen\RectorRules\Tests\Fixture\SingleLineDocBlockWithDescriptions;
 
 class Descriptions
 {
@@ -23,7 +23,7 @@ class Descriptions
 -----
 <?php
 
-namespace Tests\Unit\Rector\FixtureWithDescriptions;
+namespace MartinCamen\RectorRules\Tests\Fixture\SingleLineDocBlockWithDescriptions;
 
 class Descriptions
 {

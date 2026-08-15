@@ -74,18 +74,13 @@ final class MergeThrowsTagsRector extends AbstractDocBlockRector
             return null;
         }
 
-        $types = $this->resolveThrownTypes($lines, $throwsLineNumbers);
+        $mergedThrowsLine = $this->resolveMergedThrowsLine($lines, $throwsLineNumbers);
 
-        if ($types === null) {
+        if ($mergedThrowsLine === null) {
             return null;
         }
 
-        $firstThrowsLineNumber = $throwsLineNumbers[0];
-        preg_match(self::THROWS_TAG_REGEX, $lines[$firstThrowsLineNumber], $matches);
-
-        array_splice($lines, $firstThrowsLineNumber, count($throwsLineNumbers), [
-            $matches['prefix'] . '@throws ' . implode('|', $types),
-        ]);
+        array_splice($lines, $throwsLineNumbers[0], count($throwsLineNumbers), [$mergedThrowsLine]);
 
         return implode(str_contains($docBlock, "\r\n") ? "\r\n" : "\n", $lines);
     }
@@ -131,25 +126,33 @@ final class MergeThrowsTagsRector extends AbstractDocBlockRector
     }
 
     /**
-     * Returns the thrown types, sorted and without duplicates, or null when a tag carries more than a type.
+     * Returns the single @throws line the given lines merge into, or null when a tag carries more than a type.
+     *
+     * The indentation of the first tag is reused, so the merged line keeps the alignment of the doc block.
      *
      * @param array<int, string> $lines
      * @param array<int, int> $throwsLineNumbers
-     * @return array<int, string>|null
      */
-    private function resolveThrownTypes(array $lines, array $throwsLineNumbers): ?array
+    private function resolveMergedThrowsLine(array $lines, array $throwsLineNumbers): ?string
     {
+        $prefix = '';
         $types = [];
 
-        foreach ($throwsLineNumbers as $lineNumber) {
+        foreach ($throwsLineNumbers as $index => $lineNumber) {
             if (preg_match(self::THROWS_TAG_REGEX, $lines[$lineNumber], $matches) !== 1) {
                 return null;
+            }
+
+            if ($index === 0) {
+                $prefix = $matches['prefix'];
             }
 
             $types = [...$types, ...explode('|', $matches['types'])];
         }
 
-        return $this->sortTypes($types);
+        $types = $this->sortTypes($types);
+
+        return $types === null ? null : $prefix . '@throws ' . implode('|', $types);
     }
 
     /**
