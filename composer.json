@@ -1,5 +1,5 @@
 {
-  "name": "martincamen/rector.rules",
+  "name": "martincamen/rector-rules",
   "description": "Rules for Rector",
   "type": "library",
   "license": "MIT",

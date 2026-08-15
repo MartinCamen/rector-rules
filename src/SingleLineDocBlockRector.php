@@ -6,6 +6,8 @@ namespace MartinCamen\RectorRules;
 
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Exception\Configuration\InvalidConfigurationException;
+use Symplify\RuleDocGenerator\Exception\PoorDocumentationException;
+use Symplify\RuleDocGenerator\Exception\ShouldNotHappenException;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
@@ -14,14 +16,10 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
  */
 final class SingleLineDocBlockRector extends AbstractDocBlockRector implements ConfigurableRectorInterface
 {
-    /**
-     * Also collapse doc blocks holding a plain description instead of an annotation.
-     */
+    /** Also, collapse doc blocks holding a plain description instead of an annotation. */
     public const string COLLAPSE_DESCRIPTIONS = 'collapse_descriptions';
 
-    /**
-     * Leave doc blocks alone when collapsing them would make the line longer than this. Use 0 for no limit.
-     */
+    /** Some doc blocks, when collapsing them, would make lines longer. Use 0 for no limit. */
     public const string MAX_LINE_LENGTH = 'max_line_length';
 
     private const bool DEFAULT_COLLAPSE_DESCRIPTIONS = false;
@@ -30,6 +28,7 @@ final class SingleLineDocBlockRector extends AbstractDocBlockRector implements C
     private bool $collapseDescriptions = self::DEFAULT_COLLAPSE_DESCRIPTIONS;
     private int $maxLineLength = self::DEFAULT_MAX_LINE_LENGTH;
 
+    /** @throws PoorDocumentationException|ShouldNotHappenException */
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -65,7 +64,11 @@ final class SingleLineDocBlockRector extends AbstractDocBlockRector implements C
         );
     }
 
-    /** @param array<string, mixed> $configuration */
+    /**
+     * @param array<string, mixed> $configuration
+     *
+     * @throws InvalidConfigurationException
+     */
     public function configure(array $configuration): void
     {
         $this->guardAgainstUnknownOptions($configuration);
@@ -74,7 +77,11 @@ final class SingleLineDocBlockRector extends AbstractDocBlockRector implements C
         $this->maxLineLength = $this->resolveMaxLineLength($configuration);
     }
 
-    /** @param array<string, mixed> $configuration */
+    /**
+     * @param array<string, mixed> $configuration
+     *
+     * @throws InvalidConfigurationException
+     */
     private function guardAgainstUnknownOptions(array $configuration): void
     {
         $unknownOptions = array_diff(
@@ -94,7 +101,11 @@ final class SingleLineDocBlockRector extends AbstractDocBlockRector implements C
         ));
     }
 
-    /** @param array<string, mixed> $configuration */
+    /**
+     * @param array<string, mixed> $configuration
+     *
+     * @throws InvalidConfigurationException
+     */
     private function resolveCollapseDescriptions(array $configuration): bool
     {
         $collapseDescriptions = $configuration[self::COLLAPSE_DESCRIPTIONS] ?? self::DEFAULT_COLLAPSE_DESCRIPTIONS;
@@ -110,7 +121,11 @@ final class SingleLineDocBlockRector extends AbstractDocBlockRector implements C
         return $collapseDescriptions;
     }
 
-    /** @param array<string, mixed> $configuration */
+    /**
+     * @param array<string, mixed> $configuration
+     *
+     * @throws InvalidConfigurationException
+     */
     private function resolveMaxLineLength(array $configuration): int
     {
         $maxLineLength = $configuration[self::MAX_LINE_LENGTH] ?? self::DEFAULT_MAX_LINE_LENGTH;
@@ -162,7 +177,8 @@ final class SingleLineDocBlockRector extends AbstractDocBlockRector implements C
     }
 
     /**
-     * The closing line carries the indentation of the doc block, one space wider than the code it documents.
+     * The closing line carries the indentation of the doc block:
+     * one space wider than the code it documents.
      */
     private function isTooLong(string $singleLineDocBlock, string $closingLine): bool
     {

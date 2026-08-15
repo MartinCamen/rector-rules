@@ -20,8 +20,8 @@ use Rector\Rector\AbstractRector;
 /**
  * Base for rules that rewrite the raw text of a doc block instead of its parsed representation.
  *
- * Rector prints doc blocks while preserving their original line breaks, so a rule that has to change the layout
- * itself has to work on the text.
+ * Rector prints doc blocks while preserving their original line breaks,
+ * so a rule that has to change the layout itself has to work on the text.
  */
 abstract class AbstractDocBlockRector extends AbstractRector
 {
@@ -41,11 +41,6 @@ abstract class AbstractDocBlockRector extends AbstractRector
         ];
     }
 
-    /**
-     * The node is cloned on purpose. Rector caches the parsed doc block per node object, and rules and post rectors
-     * running after this one print that cache back over the node. Handing them a node they have not parsed yet makes
-     * them re-read, and keep, the rewritten doc block.
-     */
     public function refactor(Node $node): ?Node
     {
         $docComment = $node->getDocComment();
@@ -66,13 +61,10 @@ abstract class AbstractDocBlockRector extends AbstractRector
         return $clonedNode;
     }
 
-    /**
-     * Returns the rewritten doc block, or null when it must be left alone.
-     */
     abstract protected function refactorDocBlock(string $docBlock): ?string;
 
     /**
-     * Splits a doc block into its lines, or returns null when it is not a multi line doc block.
+     * Splits a doc block into its lines or returns null when it is not a multi-line doc block.
      *
      * @return array<int, string>|null
      */

@@ -2,15 +2,7 @@
 
 [![CI](https://github.com/MartinCamen/rector-rules/actions/workflows/ci.yml/badge.svg)](https://github.com/MartinCamen/rector-rules/actions/workflows/ci.yml)
 
-> [!IMPORTANT]
-> This project is still being developed and breaking changes might occur even between patch versions.
->
-> The aim is to follow semantic versioning as soon as possible.
-
 A small set of [Rector](https://getrector.com) rules for keeping doc blocks tidy.
-
-Both rules rewrite the **raw text** of a doc block rather than its parsed representation, because Rector prints doc
-blocks while preserving their original line breaks. A rule that has to change the layout has to work on the text.
 
 ## Installation
 
@@ -48,9 +40,9 @@ return RectorConfig::configure()
 
 #### Options
 
-| Option                  | Type   | Default | Description                                                              |
-|-------------------------|--------|---------|--------------------------------------------------------------------------|
-| `collapse_descriptions` | `bool` | `false` | Also collapse doc blocks holding a plain description instead of an annotation. |
+| Option                  | Type   | Default | Description                                                                                            |
+|-------------------------|--------|---------|--------------------------------------------------------------------------------------------------------|
+| `collapse_descriptions` | `bool` | `false` | Also collapse doc blocks holding a plain description instead of an annotation.                         |
 | `max_line_length`       | `int`  | `120`   | Leave a doc block alone when collapsing it would make the line longer than this. Use `0` for no limit. |
 
 ```php
@@ -60,7 +52,7 @@ return RectorConfig::configure()
 ]);
 ```
 
-Passing an unknown option, or one of the wrong type, throws a `Rector\Exception\Configuration\InvalidConfigurationException`.
+Passing an unknown option, or an option of the wrong type, throws a `Rector\Exception\Configuration\InvalidConfigurationException`.
 
 #### Behaviour
 
@@ -103,15 +95,15 @@ return RectorConfig::configure()
 #### Behaviour
 
 - Duplicate types are dropped, and an existing union is sorted even when there is nothing to merge with.
-- Sorting happens on the **short** class name, which keeps the order stable once Rector imports the names — it does
-  that after this rule has run. So `\Zebra\FirstException|\Apple\SecondException` stays in that order.
+- Sorting happens on the **short** class name, which keeps the order stable once Rector imports the names which it does
+  after this rule has run. So `\Zebra\FirstException|\Apple\SecondException` stays in that order.
 - A tag carrying more than a type (`@throws FirstException when the order is already paid`) is left alone, along with
   every other tag in that doc block.
 - Tags are only merged when written as one uninterrupted block. Tags separated by a blank line or by another tag are
   left alone, because merging them would leave the lines in between stranded.
 
-This rule does not collapse the doc block onto one line. Register both rules to get that in a single pass — the merged
-tag is the only line of content left, so `SingleLineDocBlockRector` collapses it:
+This rule does not collapse the doc block onto one line. Register both rules to get that in a single pass;
+the merged tag is the only line of content left, so `SingleLineDocBlockRector` collapses it:
 
 ```php
 ->withRules([MergeThrowsTagsRector::class, SingleLineDocBlockRector::class]);

@@ -4,28 +4,30 @@ declare(strict_types=1);
 
 namespace MartinCamen\RectorRules;
 
+use Symplify\RuleDocGenerator\Exception\PoorDocumentationException;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
 /**
- * Merges the @throws tags of a doc block into a single alphabetically sorted union tag.
+ * Merges the `@throws` tags of a doc block into a single alphabetically sorted union tag.
  */
 final class MergeThrowsTagsRector extends AbstractDocBlockRector
 {
     /**
-     * Matches a @throws tag carrying nothing but a type expression, so tags with a description are left alone.
+     * Matches a `@throws` tag carrying nothing but a type expression, so tags with a description are left alone.
      *
      * @see https://regex101.com/r/nT2Dcp/1
      */
     private const string THROWS_TAG_REGEX = '#^(?<prefix>\s*\*\s*)@throws\s+(?<types>[\\\\\w|]+)\s*$#';
 
     /**
-     * Matches a doc block already holding nothing but a @throws tag on one line.
+     * Matches a doc block already holding nothing but a `@throws` tag on one line.
      *
      * @see https://regex101.com/r/hK3Vbs/1
      */
     private const string SINGLE_LINE_THROWS_DOC_BLOCK_REGEX = '#^/\*\*\s+@throws\s+(?<types>[\\\\\w|]+)\s*\*/$#';
 
+    /** @throws PoorDocumentationException */
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition(
@@ -85,9 +87,6 @@ final class MergeThrowsTagsRector extends AbstractDocBlockRector
         return implode(str_contains($docBlock, "\r\n") ? "\r\n" : "\n", $lines);
     }
 
-    /**
-     * Sorts the types of a doc block that already holds its @throws tag on a single line.
-     */
     private function sortSingleLineDocBlock(string $docBlock): ?string
     {
         if (preg_match(self::SINGLE_LINE_THROWS_DOC_BLOCK_REGEX, $docBlock, $matches) !== 1) {
@@ -100,8 +99,8 @@ final class MergeThrowsTagsRector extends AbstractDocBlockRector
     }
 
     /**
-     * Returns the line numbers holding a @throws tag, or none when they are not written as one block. Merging tags
-     * that are spread over the doc block would leave the lines in between stranded.
+     * Returns the line numbers holding a `@throws` tag, or none when they are not written as one block.
+     * Merging tags that are spread over the doc block would leave the lines in between stranded.
      *
      * @param array<int, string> $lines
      * @return array<int, int>
@@ -126,7 +125,7 @@ final class MergeThrowsTagsRector extends AbstractDocBlockRector
     }
 
     /**
-     * Returns the single @throws line the given lines merge into, or null when a tag carries more than a type.
+     * Returns the single `@throws` line the given lines merge into, or null when a tag carries more than a type.
      *
      * The indentation of the first tag is reused, so the merged line keeps the alignment of the doc block.
      *
@@ -158,8 +157,8 @@ final class MergeThrowsTagsRector extends AbstractDocBlockRector
     /**
      * Sorts thrown types alphabetically and drops duplicates, or returns null when one of them is empty.
      *
-     * Sorting on the short class name keeps the order stable once Rector imports the names, which it does after
-     * this rule has run.
+     * Sorting on the short class name keeps the order stable once Rector imports the names,
+     * which it does after this rule has run.
      *
      * @param array<int, string> $types
      * @return array<int, string>|null
