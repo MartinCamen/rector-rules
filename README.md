@@ -1,5 +1,7 @@
 # Rector Rules
 
+[![CI](https://github.com/MartinCamen/rector-rules/actions/workflows/ci.yml/badge.svg)](https://github.com/MartinCamen/rector-rules/actions/workflows/ci.yml)
+
 > [!IMPORTANT]
 > This project is still being developed and breaking changes might occur even between patch versions.
 >
